@@ -9,3 +9,8 @@ class BookSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return Book.objects.create(**validated_data)
+
+
+class LoginSerializer(serializers.Serializer):
+    login = serializers.CharField()
+    password = serializers.CharField(write_only=True)
