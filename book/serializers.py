@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from book.models import Book
@@ -14,3 +15,17 @@ class BookSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     login = serializers.CharField()
     password = serializers.CharField(write_only=True)
+
+
+User = get_user_model()
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'login', 'name', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
