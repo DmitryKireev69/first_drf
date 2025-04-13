@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import BookSerializer, LoginSerializer
 from .models import Book
+from book.models import CustomUser
 
 class TestView(APIView):
     def get(self, request):
@@ -20,6 +21,19 @@ class TestView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def put(self, request, book_id):
+        book = Book.objects.get(pk=book_id)
+        serializer = BookSerializer(book, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, book_id):
+        book = Book.objects.get(pk=book_id)
+        serializer = BookSerializer(book, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class LoginView(APIView):
 
