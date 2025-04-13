@@ -41,7 +41,7 @@ class LoginView(APIView):
 
     def post(self, request):
         data = {
-            "login": "test",
+            "login": "user",
             "password": "100"
         }
         serializer = LoginSerializer(data=data)
