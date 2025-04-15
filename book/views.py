@@ -7,6 +7,40 @@ from rest_framework.views import APIView
 from .serializers import BookSerializer, LoginSerializer
 from .models import Book
 from book.models import CustomUser
+from rest_framework.decorators import api_view
+
+
+@api_view(['GET', 'POST'])
+def books_list(request):
+    if request.method == 'GET':
+        books = Book.objects.all()
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = BookSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def book_detail(pk, request):
+    book = Book.objects.filter(pk=pk).first()
+    if not book:
+        return Response(status=404)
+
+
+    if request.method == 'GET':
+        serializer = BookSerializer(book)
+        return Response(serializer.data, status=200)
+
+    elif request.method == 'PUT':
+        serializer = BookSerializer(book, request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=200)
+
+
 
 class TestView(APIView):
     def get(self, request):
