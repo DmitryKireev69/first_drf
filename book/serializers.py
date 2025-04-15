@@ -22,7 +22,13 @@ def one_to_five(value):
         raise serializers.ValidationError('Рейтинг должен быть от 0 до 5')
 
 
-class BookSerializer(serializers.Serializer):
+class BookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = '__all__'
+
+
+class BookSerializer1(serializers.Serializer):
     title = serializers.CharField(max_length=200, default='Django REST Framework')
     author = serializers.CharField(max_length=100, default='kir')
     ratings = serializers.IntegerField(validators=[one_to_five])
