@@ -65,6 +65,13 @@ User = get_user_model()
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    # Как пример что можно определить поля и через source связать его
+    # author_username = serializers.SerializerMethodField(source='author.username')
+
+    # так же можно создать функцию с get
+    # def get_author_username(self, obj):
+    #     return obj.author.username
+
     class Meta:
         model = User
         fields = ('id', 'login', 'name', 'password')
