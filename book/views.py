@@ -24,7 +24,7 @@ def books_list(request):
         return Response(serializer.errors, status=400)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 def book_detail(request, pk):
     book = Book.objects.filter(pk=pk).first()
     if not book:
@@ -33,8 +33,11 @@ def book_detail(request, pk):
     if request.method == 'GET':
         serializer = BookSerializer(book)
         return Response(serializer.data, status=200)
-    elif request.method == 'PUT':
-        serializer = BookSerializer(book, request.data)
+    elif request.method == 'PUT' or request.method == 'PATCH':
+        if request.method == 'PUT':
+            serializer = BookSerializer(book, request.data)
+        else:
+            serializer = BookSerializer(book, request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=200)
