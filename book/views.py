@@ -23,23 +23,24 @@ def books_list(request):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
+
 @api_view(['GET', 'PUT', 'DELETE'])
-def book_detail(pk, request):
+def book_detail(request, pk):
     book = Book.objects.filter(pk=pk).first()
     if not book:
         return Response(status=404)
 
-
     if request.method == 'GET':
         serializer = BookSerializer(book)
         return Response(serializer.data, status=200)
-
     elif request.method == 'PUT':
         serializer = BookSerializer(book, request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=200)
-
+    elif request.method == 'DELETE':
+        book.delete()
+        return Response(status=204)
 
 
 class TestView(APIView):
