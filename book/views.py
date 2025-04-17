@@ -8,6 +8,55 @@ from .serializers import BookSerializer, LoginSerializer
 from .models import Book
 from book.models import CustomUser
 from rest_framework.decorators import api_view
+from django.http import Http404
+
+
+class BookDetailView(APIView):
+
+    def get_object(self, pk):
+        book = Book.objects.filter(pk=pk).first()
+        if not book:
+            raise Http404
+        return book
+
+    def get(self, request, *args, **kwargs):
+        book = self.get_object(kwargs.get('book_id'))
+        serializer = BookSerializer(book)
+        return Response(serializer.data, status=200)
+
+    def put(self, request, *args, **kwargs):
+        book = self.get_object(kwargs.get('book_id'))
+        serializer = BookSerializer(book, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=200)
+
+    def patch(self, request, *args, **kwargs):
+        book = self.get_object(kwargs.get('book_id'))
+        serializer = BookSerializer(book, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=200)
+
+    def delete(self, request, *args, **kwargs):
+        book = self.get_object(kwargs.get('book_id'))
+        book.delete()
+        return Response(status=204)
+
+
+class BookListView(APIView):
+
+    def get(self, request):
+        books = Book.objects.all()
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data, status=200)
+
+    def post(self, request):
+        data = request.data
+        serializer = BookSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
 
 
 @api_view(['GET', 'POST'])
