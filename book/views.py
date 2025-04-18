@@ -9,6 +9,53 @@ from .models import Book
 from book.models import CustomUser
 from rest_framework.decorators import api_view
 from django.http import Http404
+from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+
+class BookListView2(ListCreateAPIView):
+    """Переделали на основе готового мексина для get и post запросов"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+
+class BookListView1(GenericAPIView, ListModelMixin, CreateModelMixin):
+    """Представление на основе миксинов List и Create"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class BookDetailView2(RetrieveUpdateDestroyAPIView):
+    """Переделали на основе готового миксина"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    lookup_field = 'id'
+    lookup_url_kwarg = 'book_id'
+
+class BookDetailView1(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
+    """Представление на основе миксинов для 1 обьекта ретрив обновление и удаление"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    # Определяет поле модели, по которому будет искаться объект.
+    lookup_field = 'id'
+    # Использует 'book_id' из URL по умолчанию используется то же значение, что и lookup_field
+    lookup_url_kwarg = 'book_id'
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 class BookDetailView(APIView):
