@@ -1,3 +1,5 @@
+from idlelib.format import Rstrip
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -11,6 +13,25 @@ from rest_framework.decorators import api_view
 from django.http import Http404
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework.viewsets import ViewSet, GenericViewSet
+
+
+class BookListViewSet1(GenericViewSet, ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    lookup_field = 'pk'
+
+class BookListViewSet(ViewSet):
+    def list(self, request):
+        queryset = Book.objects.all()
+        serializer = BookSerializer(queryset, many=True)
+        return Response(serializer.data, status=200)
+
+    def create(self, request):
+        serializer = BookSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
 
 class BookListView2(ListCreateAPIView):
     """Переделали на основе готового мексина для get и post запросов"""
