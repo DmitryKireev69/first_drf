@@ -8,7 +8,7 @@ urlpatterns = [
     path('<int:book_id>/apiview/', BookDetailView.as_view()),
     path('<int:book_id>/generic/', BookDetailView1.as_view()),
     path('viewset/', BookListViewSet.as_view({'get':'list','post':'create'})),
-    path('viewset/<int:pk>/',
+    path('viewset/<int:book_id>/',
          BookListViewSet1.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}),
          name='book-detail'),
 ]

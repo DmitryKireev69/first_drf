@@ -20,6 +20,7 @@ class BookListViewSet1(GenericViewSet, ListModelMixin, CreateModelMixin, Retriev
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     lookup_field = 'pk'
+    lookup_url_kwarg = 'book_id'
 
 class BookListViewSet(ViewSet):
     def list(self, request):
