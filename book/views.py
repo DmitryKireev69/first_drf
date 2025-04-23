@@ -13,6 +13,7 @@ from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveU
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.viewsets import ViewSet, GenericViewSet, ModelViewSet
 
+
 class BookListViewSet3(ListModelMixin, GenericViewSet):
     """Добавление кастомного url с помощью декоратора @action"""
     queryset = Book.objects.all()
