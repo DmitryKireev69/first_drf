@@ -7,20 +7,50 @@ from rest_framework.views import APIView
 from .serializers import BookSerializer, LoginSerializer
 from .models import Book
 from book.models import CustomUser
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from django.http import Http404
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
-from rest_framework.viewsets import ViewSet, GenericViewSet
+from rest_framework.viewsets import ViewSet, GenericViewSet, ModelViewSet
+
+class BookListViewSet3(ListModelMixin, GenericViewSet):
+    """Добавление кастомного url с помощью декоратора @action"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    lookup_field = 'pk'
+
+    # если нету url_path в качестве маршрута используется имя функции
+    @action(detail=True, methods=['GET'], url_path='custom-authors')
+    def authors(self, request, pk=None):
+        book = self.get_object()
+        return Response({"author": book.author})
 
 
-class BookListViewSet1(GenericViewSet, ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
+class BookListViewSet2(ModelViewSet):
+    """
+    Представление тоже самое что и BookListViewSet1
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     lookup_field = 'pk'
     lookup_url_kwarg = 'book_id'
 
+
+class BookListViewSet1(ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    """
+    Представление на основе миксинов и GenericViewSet
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'book_id'
+
+
 class BookListViewSet(ViewSet):
+    """
+    Представление на основе класса ViewSet
+    Самим надо определять list и create методы в ручную
+    """
     def list(self, request):
         queryset = Book.objects.all()
         serializer = BookSerializer(queryset, many=True)
@@ -32,14 +62,21 @@ class BookListViewSet(ViewSet):
         serializer.save()
         return Response(serializer.data, status=201)
 
+
 class BookListView2(ListCreateAPIView):
-    """Переделали на основе готового мексина для get и post запросов"""
+    """
+    Переделали на основе готового мексина для get и post запросов
+    Тоже самое что и BookListView1 только с готовым миксином
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
 
-class BookListView1(GenericAPIView, ListModelMixin, CreateModelMixin):
-    """Представление на основе миксинов List и Create"""
+class BookListView1(ListModelMixin, CreateModelMixin, GenericAPIView):
+    """
+    Представление на основе миксинов List и Create
+    в ручную необходимо переопределять
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
@@ -49,15 +86,23 @@ class BookListView1(GenericAPIView, ListModelMixin, CreateModelMixin):
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
+
 class BookDetailView2(RetrieveUpdateDestroyAPIView):
-    """Переделали на основе готового миксина"""
+    """
+    То же самое что и BookDetailView1 только  на основе готового миксина
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'book_id'
 
-class BookDetailView1(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
-    """Представление на основе миксинов для 1 обьекта ретрив обновление и удаление"""
+
+class BookDetailView1(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericAPIView):
+    """
+    Представление на основе миксинов для 1 обьекта
+     ретрив - получение одного бьекта
+     обновление и удаление
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     # Определяет поле модели, по которому будет искаться объект.
@@ -128,6 +173,11 @@ class BookListView(APIView):
 
 @api_view(['GET', 'POST'])
 def books_list(request):
+    """
+    Представление на основе функции
+    через request получаем методы и обрабатываем запрос в ручную
+    в api_view указываються методы разрешенные в данном представлении
+    """
     if request.method == 'GET':
         books = Book.objects.all()
         serializer = BookSerializer(books, many=True)
@@ -142,6 +192,11 @@ def books_list(request):
 
 @api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 def book_detail(request, pk):
+    """
+    Представление на основе функции
+    через request получаем методы и обрабатываем запрос в ручную
+    в api_view указываються методы разрешенные в данном представлении
+    """
     book = Book.objects.filter(pk=pk).first()
     if not book:
         return Response(status=404)
@@ -163,6 +218,10 @@ def book_detail(request, pk):
 
 
 class TestView(APIView):
+    """
+    Представление на основе класса APIView
+    сам определяешь методы get post и тд
+     """
     def get(self, request):
         books = Book.objects.all()
         serializer = BookSerializer(books, many=True)
@@ -188,6 +247,7 @@ class TestView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class LoginView(APIView):
 

@@ -21,10 +21,11 @@ from book.views import TestView, LoginView, LogoutView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', HelloView.as_view(), name='hello'),
+    # path('', HelloView.as_view(), name='hello'),
     path('test/', TestView.as_view(), name='hello'),
     path('test/<int:book_id>/', TestView.as_view(), name='hello'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('books/', include('book.urls'))
+    # path('books/', include('book.urls')),
+    path('', include('book.urls')),
 ]
